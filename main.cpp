@@ -242,7 +242,7 @@ void runBenchmark()
     normalize_matrix = false;
     int number_of_repeated_experiments_for_timing = 2;
 
-    for (int test_number = 1; test_number <= 10; test_number++) {
+    for (int test_number = 6; test_number <= 6; test_number++) {
 
         if (test_number == 1) {
             title = "random timing test";
@@ -419,17 +419,20 @@ void runBenchmark()
     }
 }
 
-void Algorithm_2_Test(){
-
-  Eigen::Matrix<float, 2, 2> F,C;
-  F<<1,2,3,4;
-  C=F*F.transpose();
-
-}
-
 int main()
 {
+    /*
   Algorithm_2_Test();
     bool run_benchmark = true;
     if (run_benchmark) runBenchmark();
+    */
+    Eigen::Matrix<float, 2,2 > F, U ,V;
+    Eigen::Matrix<float, 2,1 > sigma;
+    F << 1.0,3.0,2.0,-3.0;
+    std::cout << F << std::endl;
+    algorithm2(F, U,sigma, V);
+    /*
+    std::cout << sigma << std::endl;
+    std::cout << U << std::endl;
+    std::cout << V << std::endl;%*/
 }

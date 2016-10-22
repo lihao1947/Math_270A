@@ -88,9 +88,9 @@ namespace JIXIE {
     ( s  c  0 ) A
     0  0  1
     Column rotation A G' corresponds to something like
-    c -s  0
+        c -s  0
     A ( s  c  0 )
-    0  0  1
+        0  0  1
 
     c and s are always computed so that
     ( c -s ) ( a )  =  ( * )
@@ -873,5 +873,75 @@ inline void polarDecomposition(const Eigen::Matrix<T, 3, 3>& A,
     R.noalias() = U * V.transpose();
     S_Sym.noalias() = V * Eigen::DiagonalMatrix<T, 3, 3>(sigma) * V.transpose();
 }
+}
+
+template <class T>
+inline void flipSign(int i, Eigen::Matrix<T, 2, 2>& U, Eigen::Matrix<T, 2, 1>& sigma)
+{
+    sigma(i) = -sigma(i);
+    U.col(i) = -U.col(i);
+}
+
+template <class T>
+void sort(Eigen::Matrix<T, 2, 2>& V, Eigen::Matrix<T, 2, 1>& sigma)
+{
+    using std::fabs;
+    if (sigma(0) < sigma(1)) 
+    {
+    //swap sigma(1) and sigma(2) 
+      std::swap(sigma(0), sigma(1));
+      V.col(0).swap(V.col(1));
+      V.col(1) = -V.col(1);
+    } 
+}
+
+
+template <class T>
+inline void Jacobi(const Eigen::Matrix<T, 2, 2>& S, Eigen::Matrix<T, 2, 1>& sigma, Eigen::Matrix<T, 2,2>& V)
+{
+    if (S(0,1) == 0.0) {
+      sigma = S.diagonal();
+      V =Eigen::Matrix<T, 2, 2>::Identity();
+      return;
+    }
+    T tau = (S(1,1) - S(0,0))/(2 * S(0,1));
+    T t = 0;
+    if (tau > 0) 
+      t = tau - std::sqrt(1 + tau * tau);
+    else
+      t = tau + std::sqrt(1 + tau * tau);
+    T c = JIXIE::MATH_TOOLS::rsqrt(1 + t * t);
+    T s = t * c;
+    V(0,0) = c;
+    V(0,1) = -s;
+    V(1,0) = s;
+    V(1,1) = c;
+    sigma = (V.transpose() * S * V).diagonal();
+}
+template <class T>
+inline void algorithm2(const Eigen::Matrix<T, 2, 2>& F,
+    Eigen::Matrix<T, 2, 2>& U,
+    Eigen::Matrix<T, 2, 1>& sigma,
+    Eigen::Matrix<T, 2, 2>& V,
+    T tol = 128 * std::numeric_limits<T>::epsilon())
+{
+    Eigen::Matrix<T, 2, 2> C = F.transpose() * F;
+    //Eigen::JacobiSVD<Eigen::Matrix<T,2,2>> svd (C, Eigen::ComputeFullU | Eigen::ComputeFullV);
+    Jacobi(C, sigma, V);
+
+    sigma(0) = std::sqrt(sigma(0));
+    sigma(1) = std::sqrt(sigma(1));
+    sort(V, sigma);
+    Eigen::Matrix<T, 2, 2> A = F * V;
+    JIXIE::GivensRotation<T> r(A(0,0), A(1,0), 0, 1);
+    sigma(1) =  A(0,1) * r.s + A(1,1) * r.c;
+    r.fill(U);
+    if (sigma(1) < 0)
+    {
+      flipSign(1, U, sigma);
+    }
+
+    std::cout  << U * sigma.asDiagonal() * V.transpose() << std::endl;
+    return;
 }
 #endif
