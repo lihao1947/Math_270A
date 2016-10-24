@@ -941,7 +941,57 @@ inline void algorithm2(const Eigen::Matrix<T, 2, 2>& F,
       flipSign(1, U, sigma);
     }
 
-    std::cout  << U * sigma.asDiagonal() * V.transpose() << std::endl;
+    //std::cout  << U * sigma.asDiagonal() * V.transpose() << std::endl;
     return;
+}
+
+/**
+  make a submatrix symmetric by Given's rotation
+*/
+template <class T>
+inline void 
+given_symm(const Eigen::Matrix<T,3,3>& A,
+    JIXIE::GivensRotation<T>& R,
+    int i, int j)
+{
+    Eigen::Matrix<T, 2, 1> x(A(i, i) + A(j, j), A(j, i) - A(i, j));
+    T denominator = x.norm();
+    R.c = (T)1;
+    R.s = (T)0;
+    if (denominator != 0) {
+        /*
+          No need to use a tolerance here because x(0) and x(1) always have
+          smaller magnitude then denominator, therefore overflow never happens.
+        */
+        R.c = x(0) / denominator;
+        R.s = -x(1) / denominator;
+    }
+    return;
+}
+template <class T>
+inline void algorithm3(const Eigen::Matrix<T,3,3>& A, 
+                      Eigen::Matrix<T,3,3>& R, 
+                      Eigen::Matrix<T,3,3>& S,
+                      int max_iter = 50) 
+{
+  R = Eigen::Matrix<T,3,3>::Identity();
+  S = A;
+  JIXIE::GivensRotation<T> r01 (0,1);
+  JIXIE::GivensRotation<T> r02 (0,2);
+  JIXIE::GivensRotation<T> r12 (1,2);
+  for (int i =0 ; i < max_iter; ++i) 
+  {
+    given_symm(S, r01, 0,1);
+    r01.columnRotation(R);
+    r01.rowRotation(S);
+    std::cout <<S << std::endl;
+    given_symm(S, r02, 0,2);
+    r02.columnRotation(R);
+    r02.rowRotation(S);
+    given_symm(S, r12, 1,2);
+    r12.columnRotation(R);
+    r12.rowRotation(S);
+    
+  }
 }
 #endif
