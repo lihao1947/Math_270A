@@ -419,29 +419,91 @@ void runBenchmark()
     }
 }
 
+void My_SVD(const Eigen::Matrix2f& F,Eigen::Matrix2f& U,Eigen::Matrix2f& sigma,Eigen::Matrix2f& V){
+//
+//Compute the SVD of input F with sign conventions discussed in class and in assignment
+//
+//input: F
+//output: U,sigma,V with F=U*sigma*V.transpose() and U*U.transpose()=V*V.transpose()=I;
+    Eigen::Matrix<float, 2,1> diag_sigma = sigma.diagonal();
+    Eigen::Matrix<float, 2, 2> C = F.transpose() * F;
+    Jacobi(C, diag_sigma, V);
+
+    diag_sigma(0) = std::sqrt(diag_sigma(0));
+    diag_sigma(1) = std::sqrt(diag_sigma(1));
+    sort(V, diag_sigma);
+    Eigen::Matrix<float, 2, 2> A = F * V;
+    JIXIE::GivensRotation<float> r(A(0,0), A(1,0), 0, 1);
+    diag_sigma(1) =  A(0,1) * r.s + A(1,1) * r.c;
+    r.fill(U);
+    /*
+    if (diag_sigma(1) < 0)
+    {
+      flipSign(1, U, diag_sigma);
+    }*/
+    sigma = diag_sigma.asDiagonal();
+    //std::cout  << U * sigma.asDiagonal() * V.transpose() << std::endl;
+    return;
+}
+
+void My_Polar(const Eigen::Matrix3f& F,Eigen::Matrix3f& R,Eigen::Matrix3f& S){
+  //
+  //Compute the polar decomposition of input F (with det(R)=1)
+  //
+  //input: F
+  //output: R,s with F=R*S and R*R.transpose()=I and S=S.transpose()
+  int max_iter = 1000;
+  float tol = 128 * std::numeric_limits<float>::epsilon();
+  R = Eigen::Matrix<float,3,3>::Identity();
+  S = F;
+  JIXIE::GivensRotation<float> r01 (0,1);
+  JIXIE::GivensRotation<float> r02 (0,2);
+  JIXIE::GivensRotation<float> r12 (1,2);
+  for (int i =0 ; i < max_iter; ++i) 
+  {
+    given_symm(S, r01, 0,1);
+    r01.columnRotation(R);
+    r01.rowRotation(S);
+    given_symm(S, r02, 0,2);
+    r02.columnRotation(R);
+    r02.rowRotation(S);
+    given_symm(S, r12, 1,2);
+    r12.columnRotation(R);
+    r12.rowRotation(S);
+      if (std::abs(S(0,1)-S(1,0)) < tol &&
+          std::abs(S(0,2)-S(2,0)) < tol &&
+          std::abs(S(1,2)-S(1,2)) < tol)
+          return;
+  }
+}
+
+// void Algorithm_2_Test(){
+//
+//   Eigen::Matrix2f F,C,U,V;
+//   F<<1,2,3,4;
+//   C=F*F.transpose();
+//   Eigen::Vector2f s2;
+//   JIXIE::Jacobi(C,s2,V);
+//
+// }
+
 int main()
 {
-    /*
-  Algorithm_2_Test();
-    bool run_benchmark = true;
-    if (run_benchmark) runBenchmark();
-    */
-/*
-    Eigen::Matrix<float, 2,2 > F, U ,V;
-    Eigen::Matrix<float, 2,1 > sigma;
-    F << -2.0,0.0,0.0,-1.0;
-    std::cout << F << std::endl;
-    algorithm2(F, U,sigma, V);
+  bool run_benchmark = false;
+  if (run_benchmark) runBenchmark();
+  /*
+  Eigen::Matrix2f F, U, sigma, V;
+  Eigen::Matrix3f G, R, S;
+  F << -2,0,0,1;
+  G << 1,2,3,4,5,6,7,8,9;
+  My_SVD(F, U,sigma, V);
+  My_Polar(G, R,S);
+  std::cout<< U << std::endl << sigma << std::endl << V << std::endl;
+  std::cout << U * sigma * V.transpose() << std::endl;
+  std::cout << "U det = " << U.determinant() << " V det = " << V.determinant() << std::endl;
+  std::cout << U *U.transpose() << std::endl << V*V.transpose() << std::endl;
+  std::cout<< R << std::endl << R << std::endl ;
+  std::cout << R*S << std::endl;
+  std::cout << "R det = " << R.determinant() << std::endl;
 */
-    Eigen::Matrix<float, 3,3 > A, R ,S;
-    A << 1,3,4,5,6,7,3,4,2; 
-    std::cout << A << std::endl;
-    algorithm3(A,R,S);
-    std::cout << R << std::endl;
-    std::cout << S << std::endl;
-    std::cout << R*S<< std::endl;
-    /*
-    std::cout << sigma << std::endl;
-    std::cout << U << std::endl;
-    std::cout << V << std::endl;%*/
 }
