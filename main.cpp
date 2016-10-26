@@ -426,15 +426,20 @@ int main()
     bool run_benchmark = true;
     if (run_benchmark) runBenchmark();
     */
+/*
     Eigen::Matrix<float, 2,2 > F, U ,V;
     Eigen::Matrix<float, 2,1 > sigma;
     F << -2.0,0.0,0.0,-1.0;
     std::cout << F << std::endl;
     algorithm2(F, U,sigma, V);
+*/
     Eigen::Matrix<float, 3,3 > A, R ,S;
-    A << 1,2,3,4,5,6,7,8,9;
+    A << 1,3,4,5,6,7,3,4,2; 
     std::cout << A << std::endl;
     algorithm3(A,R,S);
+    std::cout << R << std::endl;
+    std::cout << S << std::endl;
+    std::cout << R*S<< std::endl;
     /*
     std::cout << sigma << std::endl;
     std::cout << U << std::endl;

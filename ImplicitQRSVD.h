@@ -875,6 +875,10 @@ inline void polarDecomposition(const Eigen::Matrix<T, 3, 3>& A,
 }
 }
 
+/* Homework 1*/
+/**
+ 2x2 flip sign
+ */
 template <class T>
 inline void flipSign(int i, Eigen::Matrix<T, 2, 2>& U, Eigen::Matrix<T, 2, 1>& sigma)
 {
@@ -882,6 +886,9 @@ inline void flipSign(int i, Eigen::Matrix<T, 2, 2>& U, Eigen::Matrix<T, 2, 1>& s
     U.col(i) = -U.col(i);
 }
 
+/**
+ swap sigma and columns of V for 2x2 svd
+ */
 template <class T>
 void sort(Eigen::Matrix<T, 2, 2>& V, Eigen::Matrix<T, 2, 1>& sigma)
 {
@@ -895,7 +902,9 @@ void sort(Eigen::Matrix<T, 2, 2>& V, Eigen::Matrix<T, 2, 1>& sigma)
     } 
 }
 
-
+/**
+ Jacobi eigen decomposition for 2x2 matrix
+ */
 template <class T>
 inline void Jacobi(const Eigen::Matrix<T, 2, 2>& S, Eigen::Matrix<T, 2, 1>& sigma, Eigen::Matrix<T, 2,2>& V)
 {
@@ -918,6 +927,7 @@ inline void Jacobi(const Eigen::Matrix<T, 2, 2>& S, Eigen::Matrix<T, 2, 1>& sigm
     V(1,1) = c;
     sigma = (V.transpose() * S * V).diagonal();
 }
+
 template <class T>
 inline void algorithm2(const Eigen::Matrix<T, 2, 2>& F,
     Eigen::Matrix<T, 2, 2>& U,
@@ -972,7 +982,8 @@ template <class T>
 inline void algorithm3(const Eigen::Matrix<T,3,3>& A, 
                       Eigen::Matrix<T,3,3>& R, 
                       Eigen::Matrix<T,3,3>& S,
-                      int max_iter = 50) 
+                      int max_iter = 50,
+                      T tol = 128 * std::numeric_limits<T>::epsilon())
 {
   R = Eigen::Matrix<T,3,3>::Identity();
   S = A;
@@ -984,14 +995,16 @@ inline void algorithm3(const Eigen::Matrix<T,3,3>& A,
     given_symm(S, r01, 0,1);
     r01.columnRotation(R);
     r01.rowRotation(S);
-    std::cout <<S << std::endl;
     given_symm(S, r02, 0,2);
     r02.columnRotation(R);
     r02.rowRotation(S);
     given_symm(S, r12, 1,2);
     r12.columnRotation(R);
     r12.rowRotation(S);
-    
+      if (std::abs(S(0,1)-S(1,0)) < tol &&
+          std::abs(S(0,2)-S(2,0)) < tol &&
+          std::abs(S(1,2)-S(1,2)) < tol)
+          return;
   }
 }
 #endif
