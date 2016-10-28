@@ -431,7 +431,7 @@ void My_SVD(const Eigen::Matrix2f& F,Eigen::Matrix2f& U,Eigen::Matrix2f& sigma,E
 
     diag_sigma(0) = std::sqrt(diag_sigma(0));
     diag_sigma(1) = std::sqrt(diag_sigma(1));
-    sort(V, diag_sigma);
+    sort(V, diag_sigma); // sort for 2x2 matrices is implemented in implicitQR.h
     Eigen::Matrix<float, 2, 2> A = F * V;
     JIXIE::GivensRotation<float> r(A(0,0), A(1,0), 0, 1);
     diag_sigma(1) =  A(0,1) * r.s + A(1,1) * r.c;
@@ -491,10 +491,9 @@ int main()
 {
   bool run_benchmark = false;
   if (run_benchmark) runBenchmark();
-  /*
   Eigen::Matrix2f F, U, sigma, V;
   Eigen::Matrix3f G, R, S;
-  F << -2,0,0,1;
+  F << -0,-0,0,0;
   G << 1,2,3,4,5,6,7,8,9;
   My_SVD(F, U,sigma, V);
   My_Polar(G, R,S);
@@ -505,5 +504,4 @@ int main()
   std::cout<< R << std::endl << R << std::endl ;
   std::cout << R*S << std::endl;
   std::cout << "R det = " << R.determinant() << std::endl;
-*/
 }
