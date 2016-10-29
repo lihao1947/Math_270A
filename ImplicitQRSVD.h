@@ -1,4 +1,4 @@
-/**
+/*
 Copyright (c) 2016 Theodore Gast, Chuyuan Fu, Chenfanfu Jiang, Joseph Teran
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -913,12 +913,21 @@ inline void Jacobi(const Eigen::Matrix<T, 2, 2>& S, Eigen::Matrix<T, 2, 1>& sigm
       V =Eigen::Matrix<T, 2, 2>::Identity();
       return;
     }
-    T tau = (S(1,1) - S(0,0))/(2 * S(0,1));
+    T S_half =( S(1,1) - S(0,0))/2 ;
+    T S_off_diag = S(0,1);
     T t = 0;
-    if (tau > 0) 
-      t = tau - std::sqrt(1 + tau * tau);
-    else
-      t = tau + std::sqrt(1 + tau * tau);
+    if (std::abs(S_off_diag) > std::abs(S_half)) {
+        T tau = S_half/S_off_diag;
+        if (tau > 0)  
+            t = tau - std::sqrt(1 + tau * tau);
+        else 
+            t = tau + std::sqrt(1 + tau * tau);
+    } else {
+        t = -S_off_diag / (std::sqrt(
+        S_off_diag * S_off_diag +
+        S_half * S_half) +
+        S_half);
+    }
     T c = JIXIE::MATH_TOOLS::rsqrt(1 + t * t);
     T s = t * c;
     V(0,0) = c;

@@ -493,7 +493,7 @@ int main()
   if (run_benchmark) runBenchmark();
   Eigen::Matrix2f F, U, sigma, V;
   Eigen::Matrix3f G, R, S;
-  F << -0,-0,0,0;
+  F << -1,-0.000001,0,1;
   G << 1,2,3,4,5,6,7,8,9;
   My_SVD(F, U,sigma, V);
   My_Polar(G, R,S);
