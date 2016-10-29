@@ -945,7 +945,6 @@ inline void algorithm2(const Eigen::Matrix<T, 2, 2>& F,
     T tol = 128 * std::numeric_limits<T>::epsilon())
 {
     Eigen::Matrix<T, 2, 2> C = F.transpose() * F;
-    //Eigen::JacobiSVD<Eigen::Matrix<T,2,2>> svd (C, Eigen::ComputeFullU | Eigen::ComputeFullV);
     Jacobi(C, sigma, V);
 
     sigma(0) = std::sqrt(sigma(0));
@@ -955,12 +954,6 @@ inline void algorithm2(const Eigen::Matrix<T, 2, 2>& F,
     JIXIE::GivensRotation<T> r(A(0,0), A(1,0), 0, 1);
     sigma(1) =  A(0,1) * r.s + A(1,1) * r.c;
     r.fill(U);
-    if (sigma(1) < 0)
-    {
-      flipSign(1, U, sigma);
-    }
-
-    //std::cout  << U * sigma.asDiagonal() * V.transpose() << std::endl;
     return;
 }
 

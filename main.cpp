@@ -436,13 +436,7 @@ void My_SVD(const Eigen::Matrix2f& F,Eigen::Matrix2f& U,Eigen::Matrix2f& sigma,E
     JIXIE::GivensRotation<float> r(A(0,0), A(1,0), 0, 1);
     diag_sigma(1) =  A(0,1) * r.s + A(1,1) * r.c;
     r.fill(U);
-    /*
-    if (diag_sigma(1) < 0)
-    {
-      flipSign(1, U, diag_sigma);
-    }*/
     sigma = diag_sigma.asDiagonal();
-    //std::cout  << U * sigma.asDiagonal() * V.transpose() << std::endl;
     return;
 }
 
